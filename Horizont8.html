@@ -163,6 +163,12 @@ button.btn-generate:active{transform:scale(.98);}
 .check-row a{color:var(--accent-color);text-decoration:underline;cursor:pointer;}
 .check-row.err{border-color:#ff7043;}
 
+/* Passwort-Felder mit Anzeigen/Verbergen */
+.pw-wrap{position:relative;display:flex;align-items:center;}
+.pw-wrap input{flex:1;padding-right:92px;}
+.pw-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:#3a3a3a;color:#fff;border:1px solid #555;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer;}
+.pw-toggle:hover{background:#4a4a4a;border-color:#777;}
+
 /* Fester Benutzername – Badge */
 .username-badge{font-size:26px;font-weight:800;text-align:center;color:var(--accent-color);background:#153524;border:2px solid var(--accent-color);border-radius:12px;padding:20px 12px;margin:6px 0 16px;letter-spacing:.5px;word-break:break-all;}
 
@@ -197,12 +203,37 @@ button.btn-generate:active{transform:scale(.98);}
 .mail-body .mfocus{color:var(--light-green);font-weight:600;}
 .mail-card.match{border-left-color:#ffd54f;}
 .mail-card.match .mail-subj{color:#ffd54f;}
-.mail-open{display:inline-block;margin-top:10px;background:#3a3a3a;color:#fff;padding:7px 12px;border-radius:6px;font-size:12px;text-decoration:none;}
+.mail-open{display:inline-block;margin-top:10px;background:#3a3a3a;color:#fff;padding:7px 12px;border-radius:6px;font-size:12px;text-decoration:none;cursor:pointer;border:none;}
 .mail-open:hover{background:#4a4a4a;}
 .mail-disabled{background:rgba(255,145,0,.12);border:1px solid var(--warning-color);color:#ffb74d;border-radius:8px;padding:11px 14px;font-size:12px;line-height:1.5;}
 
+/* Echter E-Mail-Versand (EmailJS) */
+.mail-send{display:inline-block;margin:10px 8px 0 0;background:var(--accent-color);color:#0a1f12;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer;border:none;}
+.mail-send:hover{filter:brightness(1.08);}
+.mail-send:disabled{opacity:.55;cursor:default;}
+.mail-send.sent{background:#2e7d32;color:#fff;}
+.mail-sendall{display:block;width:100%;margin:6px 0 16px;background:var(--accent-color);color:#0a1f12;padding:12px;border-radius:8px;font-size:14px;font-weight:800;border:none;cursor:pointer;}
+.mail-sendall:hover{filter:brightness(1.08);}
+.mail-sendall:disabled{opacity:.55;cursor:default;}
+.mail-status{font-size:12px;margin-top:8px;padding:9px 12px;border-radius:8px;display:none;line-height:1.5;}
+.mail-status.ok{display:block;background:rgba(46,125,50,.15);border:1px solid #2e7d32;color:#a5d6a7;}
+.mail-status.err{display:block;background:rgba(211,47,47,.15);border:1px solid #d32f2f;color:#ef9a9a;}
+.mail-setup{background:rgba(33,150,243,.10);border:1px solid var(--info-color);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.55;color:#cfe3ff;margin-bottom:14px;}
+.mail-setup a{color:#90caf9;}
+.mail-setup ol{margin:6px 0 0 18px;}
+.mail-setup code{background:#0d2038;padding:1px 5px;border-radius:4px;font-size:11px;}
+.cfg-field{margin-top:8px;}
+.cfg-field label{display:block;font-size:11px;color:var(--text-muted);margin-bottom:3px;}
+.cfg-field input{width:100%;padding:8px;background:#2a2a2a;border:1px solid #444;border-radius:6px;color:#fff;font-size:13px;}
+.cfg-save{margin-top:10px;width:100%;padding:9px;background:var(--accent-color);color:#0a1f12;border:none;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;}
+.cfg-badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700;}
+.cfg-badge.on{background:#153524;color:var(--accent-color);border:1px solid var(--accent-color);}
+.cfg-badge.off{background:#3a2a10;color:#ffb74d;border:1px solid var(--warning-color);}
+
 @media(max-width:480px){.cal-grid{gap:3px}.cal-day{min-height:33px;font-size:12px}}
 </style>
+<!-- EmailJS: Versand echter E-Mails direkt aus dem Browser (nur aktiv, wenn konfiguriert) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -239,6 +270,24 @@ button.btn-generate:active{transform:scale(.98);}
       <label class="field-label" for="authEmail" data-i18n="auth.email">E-Mail-Adresse</label>
       <input type="email" id="authEmail" data-i18n-ph="auth.emailPh" placeholder="deine@email.de" autocomplete="email" inputmode="email">
       <div class="hint" data-i18n="auth.emailHint">An diese Adresse schicken wir dir zu jedem eingetragenen Trainingstag eine kurze Aufmunterung.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="field-label" for="authPw" data-i18n="auth.pw">Passwort</label>
+      <div class="pw-wrap">
+        <input type="password" id="authPw" data-i18n-ph="auth.pwPh" placeholder="Passwort eingeben" autocomplete="current-password">
+        <button type="button" class="pw-toggle" onclick="togglePwVisible('authPw',this)" data-i18n="auth.show">Anzeigen</button>
+      </div>
+      <div class="hint" data-i18n="auth.pwHint">Dein Passwort schützt den Zugang zu deinem Konto. Es wird nur verschlüsselt auf diesem Gerät gespeichert.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="field-label" for="authPw2" data-i18n="auth.pw2">Passwort bestätigen (nur bei neuer Anmeldung)</label>
+      <div class="pw-wrap">
+        <input type="password" id="authPw2" data-i18n-ph="auth.pw2Ph" placeholder="Passwort wiederholen" autocomplete="new-password">
+        <button type="button" class="pw-toggle" onclick="togglePwVisible('authPw2',this)" data-i18n="auth.show">Anzeigen</button>
+      </div>
+      <div class="hint" data-i18n="auth.newHere">Neu hier? Dann wähle ein Passwort und bestätige es.</div>
     </div>
 
     <label class="check-row" id="agreeRow" for="authAgree">
@@ -460,6 +509,41 @@ button.btn-generate:active{transform:scale(.98);}
   </div>
 </div>
 
+<!-- ============ MODAL: Passwort ändern ============ -->
+<div class="modal-overlay" id="pwModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span data-i18n="pw.title">Passwort ändern</span>
+      <button type="button" class="dp-close" onclick="togglePwModal(false)">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="pwCurrent" data-i18n="pw.current">Aktuelles Passwort</label>
+      <div class="pw-wrap">
+        <input type="password" id="pwCurrent" autocomplete="current-password">
+        <button type="button" class="pw-toggle" onclick="togglePwVisible('pwCurrent',this)" data-i18n="auth.show">Anzeigen</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="pwNew" data-i18n="pw.new">Neues Passwort</label>
+      <div class="pw-wrap">
+        <input type="password" id="pwNew" autocomplete="new-password">
+        <button type="button" class="pw-toggle" onclick="togglePwVisible('pwNew',this)" data-i18n="auth.show">Anzeigen</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="pwNew2" data-i18n="pw.new2">Neues Passwort bestätigen</label>
+      <div class="pw-wrap">
+        <input type="password" id="pwNew2" autocomplete="new-password">
+        <button type="button" class="pw-toggle" onclick="togglePwVisible('pwNew2',this)" data-i18n="auth.show">Anzeigen</button>
+      </div>
+    </div>
+    <p id="pwModalError" class="form-error"></p>
+    <div class="mail-status" id="pwModalStatus"></div>
+    <button type="button" class="btn-generate" onclick="saveNewPassword()" data-i18n="pw.save">Passwort speichern</button>
+    <button type="button" class="btn-secondary" style="margin-top:8px;" onclick="togglePwModal(false)" data-i18n="pw.cancel">Abbrechen</button>
+  </div>
+</div>
+
 <script>
 /* =====================================================================
    BASIS: Speicher (mit Fallback, falls localStorage nicht verfügbar ist)
@@ -471,6 +555,7 @@ const GK_KEY        = "footballcoach_gkonly_v1";
 const USED_KEY      = "footballcoach_used_v1";
 const ACCOUNT_KEY   = "footballcoach_account_v1";   // aktuelles Konto (E-Mail, Benutzername, Nickname, Mail-Opt-in)
 const USERS_KEY     = "footballcoach_users_v1";     // Registry: E-Mail → Konto + belegte Benutzernamen
+const MAILCFG_KEY   = "footballcoach_mailcfg_v1";   // EmailJS-Konfiguration (Service-/Template-/Public-Key)
 const MEM = {};
 const LS = {
   get(k){ try{ return localStorage.getItem(k); }catch(e){ return (k in MEM)?MEM[k]:null; } },
@@ -561,11 +646,24 @@ de:{
  "auth.errEmail":"Bitte gib eine gültige E-Mail-Adresse ein.",
  "auth.errAgree":"Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzrichtlinie.",
  "auth.haveAccount":"Diese E-Mail ist bereits registriert – willkommen zurück!",
+ "auth.pw":"Passwort","auth.pwPh":"Passwort eingeben",
+ "auth.pwHint":"Dein Passwort schützt den Zugang zu deinem Konto. Es wird nur verschlüsselt auf diesem Gerät gespeichert.",
+ "auth.pw2":"Passwort bestätigen (nur bei neuer Anmeldung)","auth.pw2Ph":"Passwort wiederholen",
+ "auth.errPw":"Bitte gib ein Passwort ein (mindestens 6 Zeichen).",
+ "auth.errPw2":"Die Passwörter stimmen nicht überein.",
+ "auth.errWrongPw":"Falsches Passwort. Bitte versuche es erneut.",
+ "auth.show":"Anzeigen","auth.hide":"Verbergen",
+ "auth.newHere":"Neu hier? Dann wähle ein Passwort und bestätige es.",
+ "set.changePw":"Passwort ändern","pw.title":"Passwort ändern",
+ "pw.current":"Aktuelles Passwort","pw.new":"Neues Passwort","pw.new2":"Neues Passwort bestätigen",
+ "pw.save":"Passwort speichern","pw.saved":"Passwort geändert ✓",
+ "pw.errCurrent":"Aktuelles Passwort ist falsch.","pw.errNew":"Neues Passwort muss mindestens 6 Zeichen haben.",
+ "pw.errMatch":"Die neuen Passwörter stimmen nicht überein.","pw.cancel":"Abbrechen",
  "auth.usernameAssigned":"Dein fester Benutzername",
  "auth.usernameNote":"Dieser Benutzername ist einzigartig und kann nicht geändert werden. In E-Mails sprechen wir dich damit an.",
  "auth.next":"Weiter",
  "terms.title":"Nutzungsbedingungen & Datenschutz","terms.close":"Schließen",
- "terms.body":"<p><strong>1. Über diese App.</strong> Football Coach erstellt personalisierte Fußball-Trainingspläne. Die Inhalte dienen nur zu Informations- und Trainingszwecken und ersetzen keine medizinische oder physiotherapeutische Beratung.</p><p><strong>2. Gesundheit &amp; Eigenverantwortung.</strong> Du trainierst auf eigene Verantwortung. Höre auf deinen Körper, stoppe bei Schmerzen und halte bei Vorerkrankungen vorab ärztliche Rücksprache. Wärme dich vor jeder Einheit auf.</p><p><strong>3. Daten.</strong> Deine Angaben (E-Mail, Nickname, Profil, Trainingstage) werden lokal in deinem Browser gespeichert, damit die App funktioniert. Wenn du E-Mail-Erinnerungen aktivierst, wird deine E-Mail genutzt, um dir Aufmunterungen zu deinen Trainingstagen zu senden. Du kannst dies jederzeit in den Einstellungen abbestellen.</p><p><strong>4. Benutzername &amp; Nickname.</strong> Dir wird ein einmaliger, fester Benutzername zugewiesen (nicht änderbar). Deinen Nickname kannst du jederzeit ändern; damit wirst du in der App angesprochen.</p><p><strong>5. Keine Garantie.</strong> Wir übernehmen keine Gewähr für bestimmte Trainingsergebnisse. Die Nutzung erfolgt ohne Haftung für Schäden, die aus dem Training entstehen.</p>",
+ "terms.body":"<p><strong>1. Über diese App.</strong> Football Coach erstellt personalisierte Fußball-Trainingspläne. Die Inhalte dienen nur zu Informations- und Trainingszwecken und ersetzen keine medizinische oder physiotherapeutische Beratung.</p><p><strong>2. Gesundheit &amp; Eigenverantwortung.</strong> Du trainierst auf eigene Verantwortung. Höre auf deinen Körper, stoppe bei Schmerzen und halte bei Vorerkrankungen vorab ärztliche Rücksprache. Wärme dich vor jeder Einheit auf.</p><p><strong>3. Daten.</strong> Deine Angaben (E-Mail, Nickname, Profil, Trainingstage) werden lokal in deinem Browser gespeichert, damit die App funktioniert. Wenn du E-Mail-Erinnerungen aktivierst und den Versand einrichtest, wird deine E-Mail über den Drittanbieter EmailJS an dich versendet; dabei gelten dessen Datenschutzbestimmungen. Du kannst dies jederzeit in den Einstellungen abbestellen.</p><p><strong>4. Benutzername &amp; Nickname.</strong> Dir wird ein einmaliger, fester Benutzername zugewiesen (nicht änderbar). Deinen Nickname kannst du jederzeit ändern; damit wirst du in der App angesprochen.</p><p><strong>5. Keine Garantie.</strong> Wir übernehmen keine Gewähr für bestimmte Trainingsergebnisse. Die Nutzung erfolgt ohne Haftung für Schäden, die aus dem Training entstehen.</p>",
  "nick.title":"Dein Nickname",
  "nick.label":"Nickname (jederzeit änderbar)","nick.ph":"z. B. Kevin, Torjäger7 ...",
  "nick.hint":"Mit diesem Namen sprechen wir dich in der App an. In E-Mails verwenden wir deinen festen Benutzernamen.",
@@ -576,6 +674,20 @@ de:{
  "mail.previewTitle":"📧 Vorschau deiner Trainings-E-Mails",
  "mail.previewSub":"So sehen die Aufmunterungen aus, die an deinen Trainingstagen an {email} gehen. In E-Mails wirst du mit deinem Benutzernamen „{user}\" angesprochen.",
  "mail.subject":"Betreff","mail.openDraft":"✉️ Als E-Mail-Entwurf öffnen","mail.disabledNote":"E-Mail-Erinnerungen sind aktuell ausgeschaltet. Du kannst sie im ⚙️-Menü wieder aktivieren.",
+ "mail.send":"✉️ Jetzt senden","mail.sending":"Wird gesendet …","mail.sent":"✓ Gesendet","mail.sendAll":"✉️ Alle Trainings-Mails jetzt senden",
+ "mail.sendAllDone":"{n} E-Mail(s) an {email} gesendet.","mail.sendErr":"Senden fehlgeschlagen. Bitte prüfe deine EmailJS-Einstellungen im ⚙️-Menü.",
+ "mail.sentOne":"E-Mail an {email} gesendet ✓",
+ "mail.notConfigured":"Echter Versand ist noch nicht eingerichtet. Trage im ⚙️-Menü unter „E-Mail-Versand“ deine EmailJS-Daten ein – bis dahin kannst du die Mails als Entwurf öffnen.",
+ "mailcfg.title":"E-Mail-Versand (EmailJS)","mailcfg.status":"Status",
+ "mailcfg.on":"eingerichtet","mailcfg.off":"nicht eingerichtet",
+ "mailcfg.intro":"Damit die Aufmunterungen wirklich in deinem Postfach ankommen, verbinde die App mit dem kostenlosen Dienst EmailJS:",
+ "mailcfg.step1":"Erstelle ein kostenloses Konto auf emailjs.com und verbinde deinen E-Mail-Anbieter (z. B. Gmail).",
+ "mailcfg.step2":"Lege einen E-Mail-Service und ein E-Mail-Template an. Nutze im Template die Variablen {to_email}, {subject} und {message}.",
+ "mailcfg.step3":"Kopiere Service-ID, Template-ID und Public Key hierher und speichere.",
+ "mailcfg.service":"Service-ID","mailcfg.template":"Template-ID","mailcfg.public":"Public Key",
+ "mailcfg.save":"Speichern","mailcfg.saved":"E-Mail-Versand gespeichert ✓","mailcfg.cleared":"Zugangsdaten entfernt.",
+ "mailcfg.test":"Test-E-Mail senden","mailcfg.testDone":"Test-E-Mail an {email} gesendet ✓","mailcfg.testErr":"Test fehlgeschlagen – bitte Angaben prüfen.",
+ "mailcfg.needEmail":"Bitte melde dich zuerst mit deiner E-Mail an.",
  "mail.for":"E-Mail für","mail.on":" am ",
  "mail.subjToday":"{user}, heute ist dein Trainingstag! 💪",
  "mail.greeting":"Hallo {user},",
@@ -662,11 +774,24 @@ en:{
  "auth.errEmail":"Please enter a valid email address.",
  "auth.errAgree":"Please accept the Terms of Use and Privacy Policy.",
  "auth.haveAccount":"This email is already registered – welcome back!",
+ "auth.pw":"Password","auth.pwPh":"Enter password",
+ "auth.pwHint":"Your password protects access to your account. It is only stored encrypted on this device.",
+ "auth.pw2":"Confirm password (new sign-up only)","auth.pw2Ph":"Repeat password",
+ "auth.errPw":"Please enter a password (at least 6 characters).",
+ "auth.errPw2":"The passwords do not match.",
+ "auth.errWrongPw":"Wrong password. Please try again.",
+ "auth.show":"Show","auth.hide":"Hide",
+ "auth.newHere":"New here? Choose a password and confirm it.",
+ "set.changePw":"Change password","pw.title":"Change password",
+ "pw.current":"Current password","pw.new":"New password","pw.new2":"Confirm new password",
+ "pw.save":"Save password","pw.saved":"Password changed ✓",
+ "pw.errCurrent":"Current password is wrong.","pw.errNew":"New password must be at least 6 characters.",
+ "pw.errMatch":"The new passwords do not match.","pw.cancel":"Cancel",
  "auth.usernameAssigned":"Your permanent username",
  "auth.usernameNote":"This username is unique and cannot be changed. We address you by it in emails.",
  "auth.next":"Continue",
  "terms.title":"Terms of Use & Privacy","terms.close":"Close",
- "terms.body":"<p><strong>1. About this app.</strong> Football Coach creates personalised football training plans. The content is for information and training purposes only and does not replace medical or physiotherapy advice.</p><p><strong>2. Health &amp; personal responsibility.</strong> You train at your own risk. Listen to your body, stop if you feel pain and consult a doctor first if you have any pre-existing conditions. Warm up before every session.</p><p><strong>3. Data.</strong> Your details (email, nickname, profile, training days) are stored locally in your browser so the app works. If you enable email reminders, your email is used to send you encouragement on your training days. You can unsubscribe any time in the settings.</p><p><strong>4. Username &amp; nickname.</strong> You are assigned a unique, permanent username (not changeable). You can change your nickname any time; it is how the app addresses you.</p><p><strong>5. No guarantee.</strong> We make no guarantee of specific training results. Use is without liability for any harm arising from training.</p>",
+ "terms.body":"<p><strong>1. About this app.</strong> Football Coach creates personalised football training plans. The content is for information and training purposes only and does not replace medical or physiotherapy advice.</p><p><strong>2. Health &amp; personal responsibility.</strong> You train at your own risk. Listen to your body, stop if you feel pain and consult a doctor first if you have any pre-existing conditions. Warm up before every session.</p><p><strong>3. Data.</strong> Your details (email, nickname, profile, training days) are stored locally in your browser so the app works. If you enable email reminders and set up sending, your email is sent to you via the third-party service EmailJS, subject to its privacy terms. You can unsubscribe any time in the settings.</p><p><strong>4. Username &amp; nickname.</strong> You are assigned a unique, permanent username (not changeable). You can change your nickname any time; it is how the app addresses you.</p><p><strong>5. No guarantee.</strong> We make no guarantee of specific training results. Use is without liability for any harm arising from training.</p>",
  "nick.title":"Your nickname",
  "nick.label":"Nickname (changeable any time)","nick.ph":"e.g. Kevin, Striker7 ...",
  "nick.hint":"This is the name the app uses to address you. In emails we use your permanent username.",
@@ -677,6 +802,20 @@ en:{
  "mail.previewTitle":"📧 Preview of your training emails",
  "mail.previewSub":"This is what the encouragement sent to {email} on your training days looks like. In emails we address you by your username \"{user}\".",
  "mail.subject":"Subject","mail.openDraft":"✉️ Open as email draft","mail.disabledNote":"Email reminders are currently off. You can re-enable them in the ⚙️ menu.",
+ "mail.send":"✉️ Send now","mail.sending":"Sending …","mail.sent":"✓ Sent","mail.sendAll":"✉️ Send all training emails now",
+ "mail.sendAllDone":"Sent {n} email(s) to {email}.","mail.sendErr":"Sending failed. Please check your EmailJS settings in the ⚙️ menu.",
+ "mail.sentOne":"Email sent to {email} ✓",
+ "mail.notConfigured":"Real sending isn't set up yet. Enter your EmailJS details under \"Email sending\" in the ⚙️ menu – until then you can open the mails as a draft.",
+ "mailcfg.title":"Email sending (EmailJS)","mailcfg.status":"Status",
+ "mailcfg.on":"set up","mailcfg.off":"not set up",
+ "mailcfg.intro":"To make the encouragement actually land in your inbox, connect the app to the free EmailJS service:",
+ "mailcfg.step1":"Create a free account at emailjs.com and connect your email provider (e.g. Gmail).",
+ "mailcfg.step2":"Create an email service and an email template. In the template use the variables {to_email}, {subject} and {message}.",
+ "mailcfg.step3":"Copy the Service ID, Template ID and Public Key here and save.",
+ "mailcfg.service":"Service ID","mailcfg.template":"Template ID","mailcfg.public":"Public Key",
+ "mailcfg.save":"Save","mailcfg.saved":"Email sending saved ✓","mailcfg.cleared":"Credentials removed.",
+ "mailcfg.test":"Send test email","mailcfg.testDone":"Test email sent to {email} ✓","mailcfg.testErr":"Test failed – please check the details.",
+ "mailcfg.needEmail":"Please sign in with your email first.",
  "mail.for":"Email for","mail.on":" on ",
  "mail.subjToday":"{user}, today is your training day! 💪",
  "mail.greeting":"Hello {user},",
@@ -1578,6 +1717,40 @@ function accountSet(a){ LS.set(ACCOUNT_KEY, JSON.stringify(a)); }
 
 function emailValid(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e||"").trim()); }
 
+/* =====================================================================
+   PASSWORT
+   Hinweis: In einer reinen Browser-App ist ein Passwort KEIN echter
+   Serverschutz. Wir speichern es daher nie im Klartext, sondern nur als
+   gesalzenen Hash lokal auf diesem Gerät – als Anmelde-Hürde.
+   ===================================================================== */
+const PW_SALT = "fbcoach::v1::"; // fester Salt-Präfix
+/* Einfacher, aber ordentlicher String-Hash (FNV-1a-Variante), hex-kodiert */
+function hashPassword(pw){
+ const s = PW_SALT + String(pw);
+ // zwei unabhängige Durchläufe für mehr Streuung
+ let h1=0x811c9dc5, h2=0xdeadbeef;
+ for(let i=0;i<s.length;i++){
+   const c=s.charCodeAt(i);
+   h1 = (h1 ^ c) >>> 0; h1 = (h1 * 0x01000193) >>> 0;
+   h2 = (h2 + c) >>> 0; h2 = (h2 * 0x85ebca6b) >>> 0; h2 = (h2 ^ (h2>>>13)) >>> 0;
+ }
+ const hex=n=>("00000000"+(n>>>0).toString(16)).slice(-8);
+ return hex(h1)+hex(h2);
+}
+function passwordValid(pw){ return typeof pw==="string" && pw.length>=6; }
+/* Prüft ein eingegebenes Passwort gegen den gespeicherten Hash eines Kontos */
+function checkPassword(account, pw){
+ if(!account || !account.pwHash) return false;
+ return hashPassword(pw)===account.pwHash;
+}
+
+/* Passwort-Sichtbarkeit umschalten (Anzeigen/Verbergen) */
+function togglePwVisible(inputId, btn){
+ const el=document.getElementById(inputId); if(!el) return;
+ if(el.type==="password"){ el.type="text"; btn.textContent=t("auth.hide"); }
+ else { el.type="password"; btn.textContent=t("auth.show"); }
+}
+
 /* Bausteine für automatisch erzeugte, einzigartige Benutzernamen */
 const UN_ADJ = ["flinker","eiserner","kühler","wilder","goldener","schneller","starker","mutiger","cleverer","eleganter","zäher","kühner","blitzender","ruhiger","wuchtiger","königlicher","eisiger","feuriger","magischer","sturmerprobter"];
 const UN_NOUN = ["stürmer","kicker","libero","spielmacher","torjäger","dribbler","freistoßheld","konterkönig","mittelfeldmotor","abwehrchef","goalgetter","flankengott","ballzauberer","pressingmonster","distanzschütze","kopfballriese","tempomacher","doppelpasser","rasenschach","elfmeterheld"];
@@ -1601,18 +1774,22 @@ let pendingAuth = null; // {email, emailOptIn} zwischen Anmeldung und Benutzerna
 
 function submitAuth(){
  const email=(document.getElementById("authEmail").value||"").trim().toLowerCase();
+ const pw=document.getElementById("authPw").value||"";
+ const pw2=document.getElementById("authPw2").value||"";
  const agree=document.getElementById("authAgree").checked;
  const optIn=document.getElementById("authEmailOpt").checked;
  const err=document.getElementById("authError");
  const agreeRow=document.getElementById("agreeRow");
  if(!emailValid(email)){ err.textContent=t("auth.errEmail"); err.style.display="block"; return; }
- if(!agree){ err.textContent=t("auth.errAgree"); err.style.display="block"; agreeRow.classList.add("err"); return; }
- agreeRow.classList.remove("err"); err.style.display="none";
 
  const users=usersGet();
  const existing = users.byEmail[email];
- if(existing){
-   // Bekanntes Konto → direkt einloggen, Benutzername bleibt fest
+
+ if(existing && existing.pwHash){
+   // Bekanntes Konto → Passwort prüfen (Login)
+   if(!pw){ err.textContent=t("auth.errPw"); err.style.display="block"; return; }
+   if(!checkPassword(existing, pw)){ err.textContent=t("auth.errWrongPw"); err.style.display="block"; return; }
+   err.style.display="none"; agreeRow.classList.remove("err");
    existing.emailOptIn = optIn;
    existing.agreedTerms = true;
    users.byEmail[email]=existing;
@@ -1621,10 +1798,31 @@ function submitAuth(){
    routeAfterLogin(existing);
    return;
  }
- // Neues Konto: festen, einzigartigen Benutzernamen erzeugen
+
+ // Neues Konto (oder Altkonto ohne Passwort) → Passwort setzen, Zustimmung nötig
+ if(!passwordValid(pw)){ err.textContent=t("auth.errPw"); err.style.display="block"; return; }
+ if(pw!==pw2){ err.textContent=t("auth.errPw2"); err.style.display="block"; return; }
+ if(!agree){ err.textContent=t("auth.errAgree"); err.style.display="block"; agreeRow.classList.add("err"); return; }
+ agreeRow.classList.remove("err"); err.style.display="none";
+
+ const pwHash=hashPassword(pw);
+
+ if(existing){
+   // Altkonto ohne Passwort bekommt jetzt eins (Benutzername bleibt fest)
+   existing.pwHash=pwHash;
+   existing.emailOptIn=optIn;
+   existing.agreedTerms=true;
+   users.byEmail[email]=existing;
+   usersSet(users);
+   accountSet(existing);
+   routeAfterLogin(existing);
+   return;
+ }
+
+ // Ganz neues Konto: festen, einzigartigen Benutzernamen erzeugen
  const username=generateUsername();
  users.names=(users.names||[]).concat(username);
- const account={ email, username, nickname:"", emailOptIn:optIn, agreedTerms:true, created:Date.now() };
+ const account={ email, username, nickname:"", pwHash, emailOptIn:optIn, agreedTerms:true, created:Date.now() };
  users.byEmail[email]=account;
  usersSet(users);
  accountSet(account);
@@ -1672,6 +1870,39 @@ function editNicknameFromSettings(){
  show("nicknameView");
 }
 
+/* Passwort-Ändern-Modal öffnen/schließen */
+function togglePwModal(open){
+ const m=document.getElementById("pwModal");
+ if(open){
+   toggleDesign(false);
+   document.getElementById("pwCurrent").value="";
+   document.getElementById("pwNew").value="";
+   document.getElementById("pwNew2").value="";
+   const e=document.getElementById("pwModalError"); if(e){ e.style.display="none"; }
+   const s=document.getElementById("pwModalStatus"); if(s){ s.className="mail-status"; s.textContent=""; }
+   m.classList.add("open");
+ } else { m.classList.remove("open"); }
+}
+
+/* Neues Passwort speichern (mit Prüfung des aktuellen) */
+function saveNewPassword(){
+ const acc=accountGet(); if(!acc) return;
+ const cur=document.getElementById("pwCurrent").value||"";
+ const nw=document.getElementById("pwNew").value||"";
+ const nw2=document.getElementById("pwNew2").value||"";
+ const err=document.getElementById("pwModalError");
+ const status=document.getElementById("pwModalStatus");
+ if(acc.pwHash && !checkPassword(acc, cur)){ err.textContent=t("pw.errCurrent"); err.style.display="block"; return; }
+ if(!passwordValid(nw)){ err.textContent=t("pw.errNew"); err.style.display="block"; return; }
+ if(nw!==nw2){ err.textContent=t("pw.errMatch"); err.style.display="block"; return; }
+ err.style.display="none";
+ acc.pwHash=hashPassword(nw);
+ accountSet(acc);
+ const users=usersGet(); if(users.byEmail[acc.email]){ users.byEmail[acc.email].pwHash=acc.pwHash; usersSet(users); }
+ if(status){ status.className="mail-status ok"; status.textContent=t("pw.saved"); }
+ setTimeout(function(){ togglePwModal(false); }, 900);
+}
+
 /* E-Mail-Erinnerungen an/aus schalten */
 function toggleEmailOptIn(){
  const acc=accountGet(); if(!acc) return;
@@ -1698,8 +1929,33 @@ function renderAccountBox(){
  + `<div class="acct-line"><span class="k">${t("set.email")}</span><span class="v">${escapeHtml(acc.email)}</span></div>`
  + `<div class="acct-actions">`
  +   `<button type="button" onclick="editNicknameFromSettings()">${t("set.editNick")}</button>`
+ +   `<button type="button" onclick="togglePwModal(true)">${t("set.changePw")}</button>`
  +   `<button type="button" class="${optCls.trim()}" onclick="toggleEmailOptIn()">${optTxt}</button>`
- + `</div>`;
+ + `</div>`
+ + renderMailCfgSection();
+}
+
+/* EmailJS-Konfigurationsbereich (im ⚙️-Menü) */
+function renderMailCfgSection(){
+ const c=mailCfgGet()||{};
+ const ready=!!(c.service && c.template && c.publicKey);
+ const badge = ready
+   ? `<span class="cfg-badge on">${t("mailcfg.on")}</span>`
+   : `<span class="cfg-badge off">${t("mailcfg.off")}</span>`;
+ return `<div style="margin-top:14px;border-top:1px solid #333;padding-top:12px;">`
+   + `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">`
+   +   `<strong style="font-size:13px;">${escapeHtml(t("mailcfg.title"))}</strong>${badge}</div>`
+   + `<div class="mail-setup">${escapeHtml(t("mailcfg.intro"))}`
+   +   `<ol><li>${escapeHtml(t("mailcfg.step1"))}</li>`
+   +   `<li>${fill(escapeHtml(t("mailcfg.step2")),{to_email:"<code>to_email</code>",subject:"<code>subject</code>",message:"<code>message</code>"})}</li>`
+   +   `<li>${escapeHtml(t("mailcfg.step3"))}</li></ol></div>`
+   + `<div class="cfg-field"><label>${escapeHtml(t("mailcfg.service"))}</label><input type="text" id="cfgService" value="${escapeHtml(c.service||"")}" placeholder="service_xxx"></div>`
+   + `<div class="cfg-field"><label>${escapeHtml(t("mailcfg.template"))}</label><input type="text" id="cfgTemplate" value="${escapeHtml(c.template||"")}" placeholder="template_xxx"></div>`
+   + `<div class="cfg-field"><label>${escapeHtml(t("mailcfg.public"))}</label><input type="text" id="cfgPublic" value="${escapeHtml(c.publicKey||"")}" placeholder="XXXXXXXXXXXX"></div>`
+   + `<button type="button" class="cfg-save" onclick="saveMailCfg()">${escapeHtml(t("mailcfg.save"))}</button>`
+   + `<button type="button" class="mail-open" style="margin-top:8px;display:block;text-align:center;" onclick="sendTestMail(this)">${escapeHtml(t("mailcfg.test"))}</button>`
+   + `<div class="mail-status" id="cfgStatus"></div>`
+   + `</div>`;
 }
 
 /* Terms-/Datenschutz-Modal */
@@ -1892,6 +2148,128 @@ function buildEmail(acc, day, focusLabel){
 /* mailto-Link als „Entwurf öffnen" (funktioniert mit dem lokalen Mail-Programm) */
 function mailtoLink(to, subject, body){
  return "mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+}
+
+/* =====================================================================
+   ECHTER E-MAIL-VERSAND über EmailJS (Browser-SDK, kein eigener Server)
+   ===================================================================== */
+function mailCfgGet(){ try{ const raw=LS.get(MAILCFG_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
+function mailCfgSet(c){ LS.set(MAILCFG_KEY, JSON.stringify(c)); }
+function mailCfgClear(){ try{ localStorage.removeItem(MAILCFG_KEY); }catch(e){} }
+/* Ist der echte Versand einsatzbereit? (Konfiguration vollständig + SDK geladen) */
+function mailReady(){
+ const c=mailCfgGet();
+ return !!(c && c.service && c.template && c.publicKey && typeof window!=="undefined" && window.emailjs);
+}
+
+/* Sendet eine einzelne E-Mail über EmailJS. Gibt ein Promise zurück. */
+function sendEmail(toEmail, subject, message){
+ const c=mailCfgGet();
+ if(!c || !c.service || !c.template || !c.publicKey){
+   return Promise.reject(new Error("not-configured"));
+ }
+ if(typeof window==="undefined" || !window.emailjs){
+   return Promise.reject(new Error("sdk-missing"));
+ }
+ try{ window.emailjs.init({publicKey:c.publicKey}); }catch(e){}
+ // Gängige Variablennamen mitliefern, damit fast jedes Template passt
+ const params={
+   to_email: toEmail, email: toEmail, reply_to: toEmail,
+   subject: subject, title: subject,
+   message: message, content: message, body: message
+ };
+ return window.emailjs.send(c.service, c.template, params);
+}
+
+/* Button-Handler: eine Tages-Mail senden */
+function sendOne(btn, toEmail, subject, message){
+ const status=document.getElementById("mailSendStatus");
+ if(!mailCfgGet()){
+   if(status){ status.className="mail-status err"; status.textContent=t("mail.notConfigured"); }
+   return;
+ }
+ const original=btn.textContent;
+ btn.disabled=true; btn.textContent=t("mail.sending");
+ sendEmail(toEmail, subject, message).then(function(){
+   btn.textContent=t("mail.sent"); btn.classList.add("sent");
+   if(status){ status.className="mail-status ok"; status.textContent=fill(t("mail.sentOne"),{email:toEmail}); }
+ }).catch(function(err){
+   btn.disabled=false; btn.textContent=original;
+   if(status){ status.className="mail-status err"; status.textContent=t("mail.sendErr"); }
+   console.error("EmailJS send error:", err);
+ });
+}
+
+/* Button-Handler: alle Trainings-/Spieltags-Mails der aktuellen Liste senden */
+let _mailQueue=[]; // wird von renderMailPreview befüllt: [{to,subject,body}]
+function sendAll(btn){
+ const status=document.getElementById("mailSendStatus");
+ if(!mailCfgGet()){
+   if(status){ status.className="mail-status err"; status.textContent=t("mail.notConfigured"); }
+   return;
+ }
+ const acc=accountGet(); if(!acc) return;
+ const queue=_mailQueue.slice();
+ if(!queue.length) return;
+ btn.disabled=true; const original=btn.textContent; btn.textContent=t("mail.sending");
+ let i=0, okCount=0;
+ (function next(){
+   if(i>=queue.length){
+     btn.textContent=original; btn.disabled=false;
+     if(status){ status.className="mail-status ok"; status.textContent=fill(t("mail.sendAllDone"),{n:okCount, email:acc.email}); }
+     return;
+   }
+   const m=queue[i++];
+   sendEmail(m.to, m.subject, m.body).then(function(){ okCount++; next(); })
+     .catch(function(err){
+       btn.textContent=original; btn.disabled=false;
+       if(status){ status.className="mail-status err"; status.textContent=t("mail.sendErr"); }
+       console.error("EmailJS send error:", err);
+     });
+ })();
+}
+
+/* EmailJS-Konfiguration im ⚙️-Menü speichern */
+function saveMailCfg(){
+ const service=(document.getElementById("cfgService").value||"").trim();
+ const template=(document.getElementById("cfgTemplate").value||"").trim();
+ const publicKey=(document.getElementById("cfgPublic").value||"").trim();
+ const status=document.getElementById("cfgStatus");
+ if(!service && !template && !publicKey){
+   mailCfgClear();
+   if(status){ status.className="mail-status ok"; status.textContent=t("mailcfg.cleared"); }
+   renderAccountBox(); if(lastPlanConfig) renderPlan(lastPlanConfig); return;
+ }
+ mailCfgSet({service, template, publicKey});
+ if(status){ status.className="mail-status ok"; status.textContent=t("mailcfg.saved"); }
+ renderAccountBox();
+ if(lastPlanConfig) renderPlan(lastPlanConfig); // Vorschau → echte Sende-Buttons
+}
+
+/* Test-E-Mail aus dem ⚙️-Menü */
+function sendTestMail(btn){
+ const status=document.getElementById("cfgStatus");
+ const acc=accountGet();
+ if(!acc || !acc.email){ if(status){ status.className="mail-status err"; status.textContent=t("mailcfg.needEmail"); } return; }
+ // Aktuelle Feldwerte übernehmen, damit man vor dem Speichern testen kann
+ const service=(document.getElementById("cfgService").value||"").trim();
+ const template=(document.getElementById("cfgTemplate").value||"").trim();
+ const publicKey=(document.getElementById("cfgPublic").value||"").trim();
+ if(service&&template&&publicKey) mailCfgSet({service,template,publicKey});
+ const original=btn.textContent; btn.disabled=true; btn.textContent=t("mail.sending");
+ const subj = (lang==="en") ? "Football Coach – test email ⚽" : "Football Coach – Test-E-Mail ⚽";
+ const msg = (lang==="en")
+   ? "Hi "+acc.username+",\n\nthis is a test email from Football Coach. If you received it, real email sending works! ⚽"
+   : "Hallo "+acc.username+",\n\ndies ist eine Test-E-Mail von Football Coach. Wenn sie ankommt, funktioniert der echte Versand! ⚽";
+ sendEmail(acc.email, subj, msg).then(function(){
+   btn.disabled=false; btn.textContent=original;
+   if(status){ status.className="mail-status ok"; status.textContent=fill(t("mailcfg.testDone"),{email:acc.email}); }
+   renderAccountBox();
+ }).catch(function(err){
+   btn.disabled=false; btn.textContent=original;
+   if(status){ status.className="mail-status err"; status.textContent=t("mailcfg.testErr"); }
+   console.error("EmailJS test error:", err);
+ });
 }
 
 /* =====================================================================
@@ -2296,6 +2674,10 @@ function renderMailPreview(cfg, dayList){
  const focusRot = cfg.focuses.length?cfg.focuses.slice():["technik"];
  let dc=0;
  let cards="";
+ const ready=mailReady();
+ _mailQueue=[]; // für „Alle senden"
+ // Hilfe: String für Inline-onclick-Attribut absichern
+ const js=s=>String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n").replace(/\r/g,"").replace(/"/g,"&quot;").replace(/</g,"\\x3C");
  dayList.forEach(d=>{
    let mail=null, cls="";
    if(d.isMatch){
@@ -2315,18 +2697,29 @@ function renderMailPreview(cfg, dayList){
    } else {
      return; // Ruhetage bekommen keine Mail
    }
+   _mailQueue.push({to:acc.email, subject:mail.subject, body:mail.body});
    const link=mailtoLink(acc.email, mail.subject, mail.body);
+   const sendBtn = ready
+     ? `<button type="button" class="mail-send" onclick="sendOne(this,'${js(acc.email)}','${js(mail.subject)}','${js(mail.body)}')">${t("mail.send")}</button>`
+     : "";
    cards += `<div class="mail-card${cls}">`
      + `<div class="mail-meta">${escapeHtml(t("mail.for"))} ${escapeHtml(acc.email)}${escapeHtml(t("mail.on"))}${escapeHtml(d.label)}</div>`
      + `<div class="mail-subj">${escapeHtml(mail.subject)}</div>`
      + `<div class="mail-body">${escapeHtml(mail.body)}</div>`
-     + `<a class="mail-open" href="${link}">${t("mail.openDraft")}</a>`
+     + sendBtn
+     + `<button type="button" class="mail-open" onclick="window.location.href='${js(link)}'">${t("mail.openDraft")}</button>`
      + `</div>`;
  });
  if(!cards){ wrap.innerHTML=""; return; }
  const sub = fill(t("mail.previewSub"), {email:escapeHtml(acc.email), user:escapeHtml(acc.username)});
+ const sendAllBtn = ready
+   ? `<button type="button" class="mail-sendall" onclick="sendAll(this)">${t("mail.sendAll")}</button>`
+   : `<div class="mail-setup">${escapeHtml(t("mail.notConfigured"))}</div>`;
  wrap.innerHTML = `<div class="mail-wrap"><h3>${escapeHtml(t("mail.previewTitle"))}</h3>`
-   + `<div class="mail-sub">${sub}</div>${cards}</div>`;
+   + `<div class="mail-sub">${sub}</div>`
+   + sendAllBtn
+   + `<div class="mail-status" id="mailSendStatus"></div>`
+   + cards + `</div>`;
 }
 
 /* =====================================================================
