@@ -263,31 +263,42 @@ button.btn-generate:active{transform:scale(.98);}
   <div id="authView">
     <header>
       <h1 data-i18n="auth.title">⚽ Bei Football Coach anmelden</h1>
-      <p data-i18n="auth.sub">Melde dich mit deiner E-Mail an, um deinen persönlichen Trainingsplan zu erhalten und Trainings-Erinnerungen zu bekommen.</p>
+      <p data-i18n="auth.sub">Melde dich an, um deinen persönlichen Trainingsplan zu erhalten. Ob du eine E-Mail angibst, entscheidest du selbst.</p>
     </header>
 
     <div class="form-group">
+      <label class="field-label" data-i18n="auth.wantEmailQ">Möchtest du Trainings-Erinnerungen per E-Mail bekommen?</label>
+      <div class="cal-mode-row">
+        <button type="button" class="cmode-chip active" id="emYes" onclick="setWantEmail(true)" data-i18n="auth.wantEmailYes">Ja, mit E-Mail</button>
+        <button type="button" class="cmode-chip" id="emNo" onclick="setWantEmail(false)" data-i18n="auth.wantEmailNo">Nein, ohne E-Mail</button>
+      </div>
+    </div>
+
+    <div class="form-group" id="emailFieldGroup">
       <label class="field-label" for="authEmail" data-i18n="auth.email">E-Mail-Adresse</label>
       <input type="email" id="authEmail" data-i18n-ph="auth.emailPh" placeholder="deine@email.de" autocomplete="email" inputmode="email">
       <div class="hint" data-i18n="auth.emailHint">An diese Adresse schicken wir dir zu jedem eingetragenen Trainingstag eine kurze Aufmunterung.</div>
+    </div>
+    <div class="form-group hidden" id="noEmailHintGroup">
+      <div class="hint" data-i18n="auth.noEmailHint">Ohne E-Mail bekommst du keine Erinnerungen. Du kannst später im ⚙️-Menü jederzeit eine E-Mail hinterlegen.</div>
     </div>
 
     <div class="form-group">
       <label class="field-label" for="authPw" data-i18n="auth.pw">Passwort</label>
       <div class="pw-wrap">
-        <input type="password" id="authPw" data-i18n-ph="auth.pwPh" placeholder="Passwort eingeben" autocomplete="current-password">
+        <input type="password" id="authPw" data-i18n-ph="auth.pwPh" placeholder="Passwort eingeben" autocomplete="new-password">
         <button type="button" class="pw-toggle" onclick="togglePwVisible('authPw',this)" data-i18n="auth.show">Anzeigen</button>
       </div>
-      <div class="hint" data-i18n="auth.pwHint">Dein Passwort schützt den Zugang zu deinem Konto. Es wird nur verschlüsselt auf diesem Gerät gespeichert.</div>
+      <div class="hint" data-i18n="auth.pwHint">Dein Passwort brauchst du, um dich später auf einem anderen Gerät anzumelden. Es wird nur verschlüsselt gespeichert.</div>
     </div>
 
-    <div class="form-group">
-      <label class="field-label" for="authPw2" data-i18n="auth.pw2">Passwort bestätigen (nur bei neuer Anmeldung)</label>
+    <div class="form-group" id="authPw2Group">
+      <label class="field-label" for="authPw2" data-i18n="auth.pw2">Passwort bestätigen</label>
       <div class="pw-wrap">
         <input type="password" id="authPw2" data-i18n-ph="auth.pw2Ph" placeholder="Passwort wiederholen" autocomplete="new-password">
         <button type="button" class="pw-toggle" onclick="togglePwVisible('authPw2',this)" data-i18n="auth.show">Anzeigen</button>
       </div>
-      <div class="hint" data-i18n="auth.newHere">Neu hier? Dann wähle ein Passwort und bestätige es.</div>
+      <div class="hint" data-i18n="auth.newHere">Wähle ein Passwort – damit kannst du dich später auf einem neuen Gerät anmelden.</div>
     </div>
 
     <label class="check-row" id="agreeRow" for="authAgree">
@@ -300,11 +311,6 @@ button.btn-generate:active{transform:scale(.98);}
       </span>
     </label>
 
-    <label class="check-row" id="emailOptRow" for="authEmailOpt">
-      <input type="checkbox" id="authEmailOpt" checked>
-      <span class="check-txt" data-i18n="auth.emailOpt">Ja, schickt mir Aufmunterungs-E-Mails zu meinen Trainingstagen.</span>
-    </label>
-
     <div class="form-group" style="margin-top:16px;">
       <label class="field-label" data-i18n="reg.lang">Sprache der Website / Website language</label>
       <div class="lang-row">
@@ -314,6 +320,7 @@ button.btn-generate:active{transform:scale(.98);}
     </div>
 
     <p id="authError" class="form-error"></p>
+    <p class="hint" style="text-align:center;" data-i18n="auth.pwOnlyNewDevice">Auf diesem Gerät wirst du automatisch erkannt – ein Passwort brauchst du nur auf einem neuen Gerät.</p>
     <button type="button" class="btn-generate" onclick="submitAuth()" data-i18n="auth.continue">Anmelden & weiter</button>
   </div>
 
@@ -544,6 +551,25 @@ button.btn-generate:active{transform:scale(.98);}
   </div>
 </div>
 
+<!-- ============ MODAL: E-Mail hinzufügen/ändern ============ -->
+<div class="modal-overlay" id="emailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span data-i18n="email.modalTitle">E-Mail für Erinnerungen</span>
+      <button type="button" class="dp-close" onclick="closeEmailModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="emailModalInput" data-i18n="auth.email">E-Mail-Adresse</label>
+      <input type="email" id="emailModalInput" data-i18n-ph="auth.emailPh" placeholder="deine@email.de" autocomplete="email" inputmode="email">
+      <div class="hint" data-i18n="email.modalHint">Hinterlege eine E-Mail, um Trainings-Erinnerungen zu bekommen – oder lass das Feld leer, um keine zu erhalten.</div>
+    </div>
+    <p id="emailModalError" class="form-error"></p>
+    <div class="mail-status" id="emailModalStatus"></div>
+    <button type="button" class="btn-generate" onclick="saveEmailFromModal()" data-i18n="email.save">Speichern</button>
+    <button type="button" class="btn-secondary" style="margin-top:8px;" onclick="removeEmailFromModal()" data-i18n="email.remove">E-Mail entfernen</button>
+  </div>
+</div>
+
 <script>
 /* =====================================================================
    BASIS: Speicher (mit Fallback, falls localStorage nicht verfügbar ist)
@@ -556,6 +582,7 @@ const USED_KEY      = "footballcoach_used_v1";
 const ACCOUNT_KEY   = "footballcoach_account_v1";   // aktuelles Konto (E-Mail, Benutzername, Nickname, Mail-Opt-in)
 const USERS_KEY     = "footballcoach_users_v1";     // Registry: E-Mail → Konto + belegte Benutzernamen
 const MAILCFG_KEY   = "footballcoach_mailcfg_v1";   // EmailJS-Konfiguration (Service-/Template-/Public-Key)
+const DEVICE_KEY    = "footballcoach_device_v1";    // Kennung dieses Geräts (für „nur auf neuem Gerät Passwort")
 const MEM = {};
 const LS = {
   get(k){ try{ return localStorage.getItem(k); }catch(e){ return (k in MEM)?MEM[k]:null; } },
@@ -637,9 +664,12 @@ de:{
  "rest.afterMatch":"Tag nach dem Spiel: lockeres Auslaufen, Faszienrolle und ausgiebiges Dehnen – heute keine intensive Belastung.",
  "tag.team":"Team",
  "auth.title":"⚽ Bei Football Coach anmelden",
- "auth.sub":"Melde dich mit deiner E-Mail an, um deinen persönlichen Trainingsplan zu erhalten und Trainings-Erinnerungen zu bekommen.",
+ "auth.sub":"Melde dich an, um deinen persönlichen Trainingsplan zu erhalten. Ob du eine E-Mail angibst, entscheidest du selbst.",
+ "auth.wantEmailQ":"Möchtest du Trainings-Erinnerungen per E-Mail bekommen?",
+ "auth.wantEmailYes":"Ja, mit E-Mail","auth.wantEmailNo":"Nein, ohne E-Mail",
  "auth.email":"E-Mail-Adresse","auth.emailPh":"deine@email.de",
  "auth.emailHint":"An diese Adresse schicken wir dir zu jedem eingetragenen Trainingstag eine kurze Aufmunterung.",
+ "auth.noEmailHint":"Ohne E-Mail bekommst du keine Erinnerungen. Du kannst später im ⚙️-Menü jederzeit eine E-Mail hinterlegen.",
  "auth.agree":"Ich akzeptiere die","auth.terms":"Nutzungsbedingungen","auth.and":"und die","auth.privacy":"Datenschutzrichtlinie",
  "auth.emailOpt":"Ja, schickt mir Aufmunterungs-E-Mails zu meinen Trainingstagen.",
  "auth.continue":"Anmelden & weiter",
@@ -647,18 +677,25 @@ de:{
  "auth.errAgree":"Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzrichtlinie.",
  "auth.haveAccount":"Diese E-Mail ist bereits registriert – willkommen zurück!",
  "auth.pw":"Passwort","auth.pwPh":"Passwort eingeben",
- "auth.pwHint":"Dein Passwort schützt den Zugang zu deinem Konto. Es wird nur verschlüsselt auf diesem Gerät gespeichert.",
- "auth.pw2":"Passwort bestätigen (nur bei neuer Anmeldung)","auth.pw2Ph":"Passwort wiederholen",
+ "auth.pwHint":"Dein Passwort brauchst du, um dich später auf einem anderen Gerät anzumelden. Es wird nur verschlüsselt gespeichert.",
+ "auth.pw2":"Passwort bestätigen","auth.pw2Ph":"Passwort wiederholen",
  "auth.errPw":"Bitte gib ein Passwort ein (mindestens 6 Zeichen).",
  "auth.errPw2":"Die Passwörter stimmen nicht überein.",
  "auth.errWrongPw":"Falsches Passwort. Bitte versuche es erneut.",
  "auth.show":"Anzeigen","auth.hide":"Verbergen",
- "auth.newHere":"Neu hier? Dann wähle ein Passwort und bestätige es.",
+ "auth.newHere":"Wähle ein Passwort – damit kannst du dich später auf einem neuen Gerät anmelden.",
+ "auth.newDeviceTitle":"Anmeldung auf diesem Gerät",
+ "auth.newDeviceHint":"Es sieht so aus, als wärst du zum ersten Mal auf diesem Gerät. Melde dich mit deiner E-Mail und deinem Passwort an.",
+ "auth.pwOnlyNewDevice":"Auf diesem Gerät wirst du automatisch erkannt – ein Passwort brauchst du nur auf einem neuen Gerät.",
+ "auth.loginBtn":"Anmelden","auth.newAccount":"Neues Konto erstellen","auth.backToLogin":"Zurück zur Anmeldung",
  "set.changePw":"Passwort ändern","pw.title":"Passwort ändern",
  "pw.current":"Aktuelles Passwort","pw.new":"Neues Passwort","pw.new2":"Neues Passwort bestätigen",
  "pw.save":"Passwort speichern","pw.saved":"Passwort geändert ✓",
  "pw.errCurrent":"Aktuelles Passwort ist falsch.","pw.errNew":"Neues Passwort muss mindestens 6 Zeichen haben.",
  "pw.errMatch":"Die neuen Passwörter stimmen nicht überein.","pw.cancel":"Abbrechen",
+ "set.addEmail":"E-Mail hinzufügen/ändern","set.noEmail":"keine E-Mail","set.emailSaved":"E-Mail gespeichert ✓","set.emailRemoved":"E-Mail entfernt.",
+ "email.modalTitle":"E-Mail für Erinnerungen","email.modalHint":"Hinterlege eine E-Mail, um Trainings-Erinnerungen zu bekommen – oder lass das Feld leer, um keine zu erhalten.",
+ "email.save":"Speichern","email.remove":"E-Mail entfernen","email.errUsed":"Diese E-Mail wird bereits für ein anderes Konto verwendet.",
  "auth.usernameAssigned":"Dein fester Benutzername",
  "auth.usernameNote":"Dieser Benutzername ist einzigartig und kann nicht geändert werden. In E-Mails sprechen wir dich damit an.",
  "auth.next":"Weiter",
@@ -765,9 +802,12 @@ en:{
  "rest.afterMatch":"Day after the match: easy jog, foam rolling and a long stretch – no intense load today.",
  "tag.team":"Team",
  "auth.title":"⚽ Sign in to Football Coach",
- "auth.sub":"Sign in with your email to get your personal training plan and training reminders.",
+ "auth.sub":"Sign in to get your personal training plan. Whether you give an email is up to you.",
+ "auth.wantEmailQ":"Do you want training reminders by email?",
+ "auth.wantEmailYes":"Yes, with email","auth.wantEmailNo":"No, without email",
  "auth.email":"Email address","auth.emailPh":"you@email.com",
  "auth.emailHint":"We'll send a short bit of encouragement to this address on every training day you set.",
+ "auth.noEmailHint":"Without an email you won't get reminders. You can add one any time later in the ⚙️ menu.",
  "auth.agree":"I accept the","auth.terms":"Terms of Use","auth.and":"and the","auth.privacy":"Privacy Policy",
  "auth.emailOpt":"Yes, send me encouragement emails on my training days.",
  "auth.continue":"Sign in & continue",
@@ -775,18 +815,25 @@ en:{
  "auth.errAgree":"Please accept the Terms of Use and Privacy Policy.",
  "auth.haveAccount":"This email is already registered – welcome back!",
  "auth.pw":"Password","auth.pwPh":"Enter password",
- "auth.pwHint":"Your password protects access to your account. It is only stored encrypted on this device.",
- "auth.pw2":"Confirm password (new sign-up only)","auth.pw2Ph":"Repeat password",
+ "auth.pwHint":"You'll need your password to sign in on another device later. It is only stored encrypted.",
+ "auth.pw2":"Confirm password","auth.pw2Ph":"Repeat password",
  "auth.errPw":"Please enter a password (at least 6 characters).",
  "auth.errPw2":"The passwords do not match.",
  "auth.errWrongPw":"Wrong password. Please try again.",
  "auth.show":"Show","auth.hide":"Hide",
- "auth.newHere":"New here? Choose a password and confirm it.",
+ "auth.newHere":"Choose a password – you'll use it to sign in on a new device later.",
+ "auth.newDeviceTitle":"Sign in on this device",
+ "auth.newDeviceHint":"Looks like this is your first time on this device. Sign in with your email and password.",
+ "auth.pwOnlyNewDevice":"On this device you're recognised automatically – you only need a password on a new device.",
+ "auth.loginBtn":"Sign in","auth.newAccount":"Create new account","auth.backToLogin":"Back to sign in",
  "set.changePw":"Change password","pw.title":"Change password",
  "pw.current":"Current password","pw.new":"New password","pw.new2":"Confirm new password",
  "pw.save":"Save password","pw.saved":"Password changed ✓",
  "pw.errCurrent":"Current password is wrong.","pw.errNew":"New password must be at least 6 characters.",
  "pw.errMatch":"The new passwords do not match.","pw.cancel":"Cancel",
+ "set.addEmail":"Add/change email","set.noEmail":"no email","set.emailSaved":"Email saved ✓","set.emailRemoved":"Email removed.",
+ "email.modalTitle":"Email for reminders","email.modalHint":"Add an email to get training reminders – or leave the field empty to receive none.",
+ "email.save":"Save","email.remove":"Remove email","email.errUsed":"This email is already used for another account.",
  "auth.usernameAssigned":"Your permanent username",
  "auth.usernameNote":"This username is unique and cannot be changed. We address you by it in emails.",
  "auth.next":"Continue",
@@ -1710,10 +1757,49 @@ function onGkToggle(){
 /* =====================================================================
    KONTO: E-Mail-Anmeldung, fester Benutzername, änderbarer Nickname
    ===================================================================== */
-function usersGet(){ try{ const raw=LS.get(USERS_KEY); return raw?JSON.parse(raw):{byEmail:{},names:[]}; }catch(e){ return {byEmail:{},names:[]}; } }
+function usersGet(){ try{ const raw=LS.get(USERS_KEY); return raw?JSON.parse(raw):{byEmail:{},byUser:{},names:[]}; }catch(e){ return {byEmail:{},byUser:{},names:[]}; } }
 function usersSet(o){ LS.set(USERS_KEY, JSON.stringify(o)); }
 function accountGet(){ try{ const raw=LS.get(ACCOUNT_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
 function accountSet(a){ LS.set(ACCOUNT_KEY, JSON.stringify(a)); }
+
+/* Eindeutige Kennung dieses Geräts (einmal erzeugt, dann fest gespeichert) */
+function getDeviceId(){
+ let id=LS.get(DEVICE_KEY);
+ if(!id){
+   id = "dev_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,10);
+   LS.set(DEVICE_KEY, id);
+ }
+ return id;
+}
+/* Ist dieses Gerät für das Konto bereits bekannt/vertraut? */
+function deviceKnown(account){
+ if(!account) return false;
+ const dev=getDeviceId();
+ return Array.isArray(account.knownDevices) && account.knownDevices.indexOf(dev)>=0;
+}
+/* Dieses Gerät als bekannt markieren */
+function markDeviceKnown(account){
+ const dev=getDeviceId();
+ if(!Array.isArray(account.knownDevices)) account.knownDevices=[];
+ if(account.knownDevices.indexOf(dev)<0) account.knownDevices.push(dev);
+ return account;
+}
+/* Konto in der Registry ablegen (nach Benutzername, und – falls vorhanden – nach E-Mail) */
+function registryPut(users, account){
+ if(!users.byUser) users.byUser={};
+ users.byUser[account.username.toLowerCase()]=account;
+ if(!users.byEmail) users.byEmail={};
+ if(account.email) users.byEmail[account.email]=account;
+ return users;
+}
+/* Konto in der Registry finden – per E-Mail oder per Benutzername (mit/ohne @) */
+function registryFind(users, identifier){
+ const id=String(identifier||"").trim().toLowerCase().replace(/^@/,"");
+ if(!id) return null;
+ if(users.byEmail && users.byEmail[id]) return users.byEmail[id];
+ if(users.byUser && users.byUser[id]) return users.byUser[id];
+ return null;
+}
 
 function emailValid(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e||"").trim()); }
 
@@ -1770,30 +1856,57 @@ function generateUsername(){
  return "Spieler"+Date.now().toString().slice(-8);
 }
 
-let pendingAuth = null; // {email, emailOptIn} zwischen Anmeldung und Benutzername-Anzeige
+let pendingAuth = null; // zwischen Anmeldung und Benutzername-Anzeige
+let wantEmail = true;   // Auswahl: mit oder ohne E-Mail
+
+/* Auswahl „mit/ohne E-Mail" umschalten */
+function setWantEmail(yes){
+ wantEmail = !!yes;
+ const y=document.getElementById("emYes"), n=document.getElementById("emNo");
+ if(y) y.classList.toggle("active", wantEmail);
+ if(n) n.classList.toggle("active", !wantEmail);
+ const ef=document.getElementById("emailFieldGroup");
+ const nh=document.getElementById("noEmailHintGroup");
+ if(ef) ef.classList.toggle("hidden", !wantEmail);
+ if(nh) nh.classList.toggle("hidden", wantEmail);
+}
 
 function submitAuth(){
  const email=(document.getElementById("authEmail").value||"").trim().toLowerCase();
  const pw=document.getElementById("authPw").value||"";
  const pw2=document.getElementById("authPw2").value||"";
  const agree=document.getElementById("authAgree").checked;
- const optIn=document.getElementById("authEmailOpt").checked;
  const err=document.getElementById("authError");
  const agreeRow=document.getElementById("agreeRow");
- if(!emailValid(email)){ err.textContent=t("auth.errEmail"); err.style.display="block"; return; }
-
  const users=usersGet();
- const existing = users.byEmail[email];
+
+ // E-Mail nur prüfen, wenn der Nutzer sie angeben möchte
+ if(wantEmail){
+   if(!emailValid(email)){ err.textContent=t("auth.errEmail"); err.style.display="block"; return; }
+ }
+
+ // Existierendes Konto suchen (nur sinnvoll, wenn E-Mail angegeben – ohne E-Mail ist es immer eine Neuanlage auf diesem Gerät)
+ const existing = wantEmail ? registryFind(users, email) : null;
 
  if(existing && existing.pwHash){
-   // Bekanntes Konto → Passwort prüfen (Login)
+   // Konto existiert in der Registry dieses Browsers
+   if(deviceKnown(existing)){
+     // Bekanntes Gerät → KEIN Passwort nötig
+     err.style.display="none"; agreeRow.classList.remove("err");
+     existing.emailOptIn = true; // E-Mail vorhanden → Erinnerungen an (kann später im ⚙️ geändert werden)
+     existing.agreedTerms = true;
+     registryPut(users, existing); usersSet(users);
+     accountSet(existing);
+     routeAfterLogin(existing);
+     return;
+   }
+   // Neues Gerät → Passwort nötig
    if(!pw){ err.textContent=t("auth.errPw"); err.style.display="block"; return; }
    if(!checkPassword(existing, pw)){ err.textContent=t("auth.errWrongPw"); err.style.display="block"; return; }
    err.style.display="none"; agreeRow.classList.remove("err");
-   existing.emailOptIn = optIn;
+   markDeviceKnown(existing); // dieses Gerät jetzt vertrauen
    existing.agreedTerms = true;
-   users.byEmail[email]=existing;
-   usersSet(users);
+   registryPut(users, existing); usersSet(users);
    accountSet(existing);
    routeAfterLogin(existing);
    return;
@@ -1810,10 +1923,10 @@ function submitAuth(){
  if(existing){
    // Altkonto ohne Passwort bekommt jetzt eins (Benutzername bleibt fest)
    existing.pwHash=pwHash;
-   existing.emailOptIn=optIn;
+   existing.emailOptIn=true;
    existing.agreedTerms=true;
-   users.byEmail[email]=existing;
-   usersSet(users);
+   markDeviceKnown(existing);
+   registryPut(users, existing); usersSet(users);
    accountSet(existing);
    routeAfterLogin(existing);
    return;
@@ -1822,9 +1935,17 @@ function submitAuth(){
  // Ganz neues Konto: festen, einzigartigen Benutzernamen erzeugen
  const username=generateUsername();
  users.names=(users.names||[]).concat(username);
- const account={ email, username, nickname:"", pwHash, emailOptIn:optIn, agreedTerms:true, created:Date.now() };
- users.byEmail[email]=account;
- usersSet(users);
+ const account={
+   username,
+   email: wantEmail ? email : "",
+   nickname:"",
+   pwHash,
+   emailOptIn: wantEmail,   // ohne E-Mail keine Erinnerungen
+   agreedTerms:true,
+   knownDevices:[getDeviceId()],
+   created:Date.now()
+ };
+ registryPut(users, account); usersSet(users);
  accountSet(account);
  pendingAuth=account;
  // Benutzername anzeigen
@@ -1847,7 +1968,7 @@ function saveNickname(){
  const acc=accountGet(); if(!acc) { show("authView"); return; }
  acc.nickname=nick;
  accountSet(acc);
- const users=usersGet(); if(users.byEmail[acc.email]){ users.byEmail[acc.email].nickname=nick; usersSet(users); }
+ const users=usersGet(); registryPut(users, acc); usersSet(users);
  renderAccountBox();
  // Weiter zum Profil (falls noch keins), sonst zur Planung
  if(loadProfile()){ renderProfileBar(); show("plannerView"); }
@@ -1898,7 +2019,7 @@ function saveNewPassword(){
  err.style.display="none";
  acc.pwHash=hashPassword(nw);
  accountSet(acc);
- const users=usersGet(); if(users.byEmail[acc.email]){ users.byEmail[acc.email].pwHash=acc.pwHash; usersSet(users); }
+ const users=usersGet(); registryPut(users, acc); usersSet(users);
  if(status){ status.className="mail-status ok"; status.textContent=t("pw.saved"); }
  setTimeout(function(){ togglePwModal(false); }, 900);
 }
@@ -1906,11 +2027,63 @@ function saveNewPassword(){
 /* E-Mail-Erinnerungen an/aus schalten */
 function toggleEmailOptIn(){
  const acc=accountGet(); if(!acc) return;
+ if(!acc.email){ togglePwModal(false); openEmailModal(); return; } // ohne E-Mail: erst E-Mail hinzufügen
  acc.emailOptIn=!acc.emailOptIn;
  accountSet(acc);
- const users=usersGet(); if(users.byEmail[acc.email]){ users.byEmail[acc.email].emailOptIn=acc.emailOptIn; usersSet(users); }
+ const users=usersGet(); registryPut(users, acc); usersSet(users);
  renderAccountBox();
  if(lastPlanConfig) renderPlan(lastPlanConfig); // Vorschau aktualisieren
+}
+
+/* E-Mail-Modal (nachträglich E-Mail hinterlegen/ändern/entfernen) */
+function openEmailModal(){
+ const acc=accountGet(); if(!acc) return;
+ toggleDesign(false);
+ document.getElementById("emailModalInput").value=acc.email||"";
+ const e=document.getElementById("emailModalError"); if(e) e.style.display="none";
+ const s=document.getElementById("emailModalStatus"); if(s){ s.className="mail-status"; s.textContent=""; }
+ document.getElementById("emailModal").classList.add("open");
+}
+function closeEmailModal(){ document.getElementById("emailModal").classList.remove("open"); }
+
+function saveEmailFromModal(){
+ const acc=accountGet(); if(!acc) return;
+ const email=(document.getElementById("emailModalInput").value||"").trim().toLowerCase();
+ const err=document.getElementById("emailModalError");
+ const status=document.getElementById("emailModalStatus");
+ if(!emailValid(email)){ err.textContent=t("auth.errEmail"); err.style.display="block"; return; }
+ const users=usersGet();
+ // Wird die E-Mail bereits von einem ANDEREN Konto genutzt?
+ const owner=users.byEmail?users.byEmail[email]:null;
+ if(owner && owner.username && owner.username.toLowerCase()!==acc.username.toLowerCase()){
+   err.textContent=t("email.errUsed"); err.style.display="block"; return;
+ }
+ err.style.display="none";
+ // Falls das Konto vorher eine andere E-Mail hatte, alten Registry-Eintrag lösen
+ if(acc.email && acc.email!==email && users.byEmail){ delete users.byEmail[acc.email]; }
+ acc.email=email;
+ acc.emailOptIn=true;
+ accountSet(acc);
+ registryPut(users, acc); usersSet(users);
+ renderAccountBox();
+ if(lastPlanConfig) renderPlan(lastPlanConfig);
+ if(status){ status.className="mail-status ok"; status.textContent=t("set.emailSaved"); }
+ setTimeout(closeEmailModal, 900);
+}
+
+function removeEmailFromModal(){
+ const acc=accountGet(); if(!acc) return;
+ const status=document.getElementById("emailModalStatus");
+ const users=usersGet();
+ if(acc.email && users.byEmail){ delete users.byEmail[acc.email]; }
+ acc.email="";
+ acc.emailOptIn=false;
+ accountSet(acc);
+ registryPut(users, acc); usersSet(users);
+ renderAccountBox();
+ if(lastPlanConfig) renderPlan(lastPlanConfig);
+ if(status){ status.className="mail-status ok"; status.textContent=t("set.emailRemoved"); }
+ setTimeout(closeEmailModal, 900);
 }
 
 /* Konto-Box im Zahnrad-Menü rendern */
@@ -1921,16 +2094,19 @@ function renderAccountBox(){
  if(!box||!grp) return;
  if(!acc){ grp.style.display="none"; return; }
  grp.style.display="block";
+ const hasEmail = !!acc.email;
  const optCls = acc.emailOptIn ? " on" : "";
  const optTxt = acc.emailOptIn ? t("set.emailOn") : t("set.emailOff");
+ const emailVal = hasEmail ? escapeHtml(acc.email) : `<span style="color:var(--text-muted)">${t("set.noEmail")}</span>`;
  box.innerHTML =
    `<div class="acct-line"><span class="k">${t("set.username")}</span><span class="v user">@${escapeHtml(acc.username)}</span></div>`
  + `<div class="acct-line"><span class="k">${t("set.nickname")}</span><span class="v">${escapeHtml(acc.nickname||"—")}</span></div>`
- + `<div class="acct-line"><span class="k">${t("set.email")}</span><span class="v">${escapeHtml(acc.email)}</span></div>`
+ + `<div class="acct-line"><span class="k">${t("set.email")}</span><span class="v">${emailVal}</span></div>`
  + `<div class="acct-actions">`
  +   `<button type="button" onclick="editNicknameFromSettings()">${t("set.editNick")}</button>`
  +   `<button type="button" onclick="togglePwModal(true)">${t("set.changePw")}</button>`
- +   `<button type="button" class="${optCls.trim()}" onclick="toggleEmailOptIn()">${optTxt}</button>`
+ +   `<button type="button" onclick="openEmailModal()">${t("set.addEmail")}</button>`
+ +   (hasEmail ? `<button type="button" class="${optCls.trim()}" onclick="toggleEmailOptIn()">${optTxt}</button>` : "")
  + `</div>`
  + renderMailCfgSection();
 }
@@ -2663,6 +2839,9 @@ function renderMailPreview(cfg, dayList){
  const acc=accountGet();
  if(!acc){ wrap.innerHTML=""; return; }
 
+ // Kein E-Mail hinterlegt → gar keine Vorschau (Nutzer hat sich bewusst ohne E-Mail angemeldet)
+ if(!acc.email){ wrap.innerHTML=""; return; }
+
  // E-Mails aus ausgeschaltet → Hinweis
  if(!acc.emailOptIn){
    wrap.innerHTML = `<div class="mail-wrap"><h3>${escapeHtml(t("mail.previewTitle"))}</h3>`
@@ -2744,26 +2923,37 @@ function renderMailPreview(cfg, dayList){
  const gk=LS.get(GK_KEY)==="1";
  const gkEl=document.getElementById("gkOnly"); if(gkEl){ gkEl.checked=gk; onGkToggle(); }
 
+ // Gerätekennung sicherstellen (für „Passwort nur auf neuem Gerät")
+ getDeviceId();
+ // Standardauswahl im Anmeldeformular: mit E-Mail
+ setWantEmail(true);
+
  // Konto + Profil laden → passenden Einstieg wählen
  const acc=accountGet();
  const p=loadProfile();
  renderAccountBox();
  if(!acc){
-   // Noch nicht angemeldet → Anmeldung mit E-Mail + Richtlinien
+   // Noch nicht angemeldet → Anmeldeformular
    show("authView");
- } else if(!acc.nickname){
-   // Angemeldet, aber noch kein Nickname
-   document.getElementById("nickInput").value="";
-   show("nicknameView");
- } else if(p){
-   if(p.lang && (p.lang==="de"||p.lang==="en") && !LS.get(LANG_KEY)){ lang=p.lang; applyI18n(); }
-   renderProfileBar();
-   if(LS.get(GK_KEY)===null && posByVal(normalizePos(p.position)).grp==="torwart"){
-     if(gkEl){ gkEl.checked=true; onGkToggle(); }
-   }
-   show("plannerView");
  } else {
-   show("registrationView");
+   // Konto ist auf DIESEM Gerät gespeichert → als bekanntes Gerät markieren (kein Passwort nötig)
+   if(!deviceKnown(acc)){
+     markDeviceKnown(acc); accountSet(acc);
+     const users=usersGet(); registryPut(users, acc); usersSet(users);
+   }
+   if(!acc.nickname){
+     document.getElementById("nickInput").value="";
+     show("nicknameView");
+   } else if(p){
+     if(p.lang && (p.lang==="de"||p.lang==="en") && !LS.get(LANG_KEY)){ lang=p.lang; applyI18n(); }
+     renderProfileBar();
+     if(LS.get(GK_KEY)===null && posByVal(normalizePos(p.position)).grp==="torwart"){
+       if(gkEl){ gkEl.checked=true; onGkToggle(); }
+     }
+     show("plannerView");
+   } else {
+     show("registrationView");
+   }
  }
  // Design-Panel bei Klick außerhalb schließen
  document.addEventListener("click",function(e){
