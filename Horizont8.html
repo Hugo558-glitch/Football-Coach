@@ -109,6 +109,7 @@ button.btn-generate:active{transform:scale(.98);}
 .cal-day.sel{border-color:var(--accent-color);background:#173a26;color:var(--accent-color);}
 .cal-day.match{border-color:#ffd54f;background:#332a10;color:#ffd54f;}
 .cal-day.match::after{content:"⚽";position:absolute;top:1px;right:3px;font-size:9px;}
+.cal-day.nextmatch{box-shadow:0 0 0 2px #ffd54f inset;background:#4a3a10;font-weight:800;}
 .cal-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--text-muted);}
 .cal-legend .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle;}
 .cal-legend .dot.tr{background:#173a26;border:1px solid var(--accent-color);}
@@ -283,24 +284,6 @@ button.btn-generate:active{transform:scale(.98);}
       <div class="hint" data-i18n="auth.noEmailHint">Ohne E-Mail bekommst du keine Erinnerungen. Du kannst später im ⚙️-Menü jederzeit eine E-Mail hinterlegen.</div>
     </div>
 
-    <div class="form-group">
-      <label class="field-label" for="authPw" data-i18n="auth.pw">Passwort</label>
-      <div class="pw-wrap">
-        <input type="password" id="authPw" data-i18n-ph="auth.pwPh" placeholder="Passwort eingeben" autocomplete="new-password">
-        <button type="button" class="pw-toggle" onclick="togglePwVisible('authPw',this)" data-i18n="auth.show">Anzeigen</button>
-      </div>
-      <div class="hint" data-i18n="auth.pwHint">Dein Passwort brauchst du, um dich später auf einem anderen Gerät anzumelden. Es wird nur verschlüsselt gespeichert.</div>
-    </div>
-
-    <div class="form-group" id="authPw2Group">
-      <label class="field-label" for="authPw2" data-i18n="auth.pw2">Passwort bestätigen</label>
-      <div class="pw-wrap">
-        <input type="password" id="authPw2" data-i18n-ph="auth.pw2Ph" placeholder="Passwort wiederholen" autocomplete="new-password">
-        <button type="button" class="pw-toggle" onclick="togglePwVisible('authPw2',this)" data-i18n="auth.show">Anzeigen</button>
-      </div>
-      <div class="hint" data-i18n="auth.newHere">Wähle ein Passwort – damit kannst du dich später auf einem neuen Gerät anmelden.</div>
-    </div>
-
     <label class="check-row" id="agreeRow" for="authAgree">
       <input type="checkbox" id="authAgree">
       <span class="check-txt">
@@ -320,7 +303,6 @@ button.btn-generate:active{transform:scale(.98);}
     </div>
 
     <p id="authError" class="form-error"></p>
-    <p class="hint" style="text-align:center;" data-i18n="auth.pwOnlyNewDevice">Auf diesem Gerät wirst du automatisch erkannt – ein Passwort brauchst du nur auf einem neuen Gerät.</p>
     <button type="button" class="btn-generate" onclick="submitAuth()" data-i18n="auth.continue">Anmelden & weiter</button>
   </div>
 
@@ -457,7 +439,7 @@ button.btn-generate:active{transform:scale(.98);}
         <label class="field-label" data-i18n="pl.cal">Wann möchtest du trainieren?</label>
         <div class="cal-mode-row">
           <button type="button" class="cmode-chip active" id="cmTrain" onclick="setCalMode('train')" data-i18n="cal.train">Trainingstage wählen</button>
-          <button type="button" class="cmode-chip" id="cmMatch" onclick="setCalMode('match')" data-i18n="cal.match">⚽ Nächstes Spiel markieren</button>
+          <button type="button" class="cmode-chip" id="cmMatch" onclick="setCalMode('match')" data-i18n="cal.match">⚽ Spiele markieren</button>
         </div>
         <div class="cal">
           <div class="cal-head">
@@ -473,7 +455,7 @@ button.btn-generate:active{transform:scale(.98);}
           </div>
         </div>
         <div class="hint" id="calInfo"></div>
-        <div class="hint" data-i18n="pl.calHint">Tippe im Kalender deine Trainingstage an. Über „Nächstes Spiel markieren" setzt du deinen Spieltag – der Plan bereitet dich dann gezielt darauf vor. Ruhetage werden automatisch verteilt.</div>
+        <div class="hint" data-i18n="pl.calHint">Tippe im Kalender deine Trainingstage an. Über „Spiele markieren" kannst du beliebig viele Spieltage markieren – der Plan bereitet dich gezielt auf das nächste anstehende Spiel vor. Ruhetage werden automatisch verteilt.</div>
       </div>
 
       <p id="planError" class="form-error"></p>
@@ -513,41 +495,6 @@ button.btn-generate:active{transform:scale(.98);}
     </div>
     <div class="modal-body" id="termsBody"></div>
     <button type="button" class="btn-generate" onclick="toggleTerms(false)" data-i18n="terms.close">Schließen</button>
-  </div>
-</div>
-
-<!-- ============ MODAL: Passwort ändern ============ -->
-<div class="modal-overlay" id="pwModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span data-i18n="pw.title">Passwort ändern</span>
-      <button type="button" class="dp-close" onclick="togglePwModal(false)">✕</button>
-    </div>
-    <div class="form-group">
-      <label class="field-label" for="pwCurrent" data-i18n="pw.current">Aktuelles Passwort</label>
-      <div class="pw-wrap">
-        <input type="password" id="pwCurrent" autocomplete="current-password">
-        <button type="button" class="pw-toggle" onclick="togglePwVisible('pwCurrent',this)" data-i18n="auth.show">Anzeigen</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="field-label" for="pwNew" data-i18n="pw.new">Neues Passwort</label>
-      <div class="pw-wrap">
-        <input type="password" id="pwNew" autocomplete="new-password">
-        <button type="button" class="pw-toggle" onclick="togglePwVisible('pwNew',this)" data-i18n="auth.show">Anzeigen</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="field-label" for="pwNew2" data-i18n="pw.new2">Neues Passwort bestätigen</label>
-      <div class="pw-wrap">
-        <input type="password" id="pwNew2" autocomplete="new-password">
-        <button type="button" class="pw-toggle" onclick="togglePwVisible('pwNew2',this)" data-i18n="auth.show">Anzeigen</button>
-      </div>
-    </div>
-    <p id="pwModalError" class="form-error"></p>
-    <div class="mail-status" id="pwModalStatus"></div>
-    <button type="button" class="btn-generate" onclick="saveNewPassword()" data-i18n="pw.save">Passwort speichern</button>
-    <button type="button" class="btn-secondary" style="margin-top:8px;" onclick="togglePwModal(false)" data-i18n="pw.cancel">Abbrechen</button>
   </div>
 </div>
 
@@ -649,12 +596,14 @@ de:{
  "pl.sizeHint":"2 = zu zweit (Partnerübungen). Ab 3 Personen kommen zusätzliche Gruppen-Übungen dazu, ab 6 echte Team-Spielformen – je mehr ihr seid, desto mehr Aufgaben enthält der Plan.",
  "err.size":"Bitte gib an, wie viele Personen ihr seid (mindestens 2).",
  "pl.cal":"Wann möchtest du trainieren?",
- "cal.train":"Trainingstage wählen","cal.match":"⚽ Nächstes Spiel markieren",
+ "cal.train":"Trainingstage wählen","cal.match":"⚽ Spiele markieren",
  "cal.legTrain":"Trainingstag","cal.legMatch":"Spieltag",
  "cal.noMatch":"Kein Spieltag markiert – markiere dein nächstes Spiel für einen spielvorbereitenden Plan.",
  "cal.matchLabel":"Nächstes Spiel",
- "pl.calHint":"Tippe im Kalender deine Trainingstage an. Über „Nächstes Spiel markieren\" setzt du deinen Spieltag – der Plan bereitet dich dann gezielt darauf vor. Ruhetage werden automatisch verteilt.",
+ "cal.matchCount":"{n} Spiele markiert","cal.nextIs":"Nächstes:",
+ "pl.calHint":"Tippe im Kalender deine Trainingstage an. Über „Spiele markieren\" kannst du beliebig viele Spieltage markieren – der Plan bereitet dich gezielt auf das nächste anstehende Spiel vor. Ruhetage werden automatisch verteilt.",
  "meta.teamN":"im Team","meta.persons":"Personen","meta.match":"Nächstes Spiel",
+ "meta.otherMatches":"Weitere Spiele","meta.planNextOnly":"Der Trainingsplan bezieht sich auf das nächste Spiel.",
  "meta.today":"heute","meta.tomorrow":"morgen","meta.inDays":"in {n} Tagen",
  "phase.md1":"Spielvorbereitung – Aktivierung (1 Tag vor dem Spiel)",
  "phase.md2":"Spielvorbereitung – reduzierte Einheit (2 Tage vor dem Spiel)",
@@ -787,12 +736,14 @@ en:{
  "pl.sizeHint":"2 = as a pair (partner drills). From 3 people extra group drills are added, from 6 real team games – the more you are, the more tasks the plan contains.",
  "err.size":"Please enter how many people you are (at least 2).",
  "pl.cal":"When do you want to train?",
- "cal.train":"Pick training days","cal.match":"⚽ Mark next match",
+ "cal.train":"Pick training days","cal.match":"⚽ Mark matches",
  "cal.legTrain":"Training day","cal.legMatch":"Match day",
  "cal.noMatch":"No match day marked – mark your next match to get a match-preparation plan.",
  "cal.matchLabel":"Next match",
- "pl.calHint":"Tap your training days in the calendar. Use \"Mark next match\" to set your match day – the plan will then prepare you for it. Recovery days are placed automatically.",
+ "cal.matchCount":"{n} matches marked","cal.nextIs":"Next:",
+ "pl.calHint":"Tap your training days in the calendar. Use \"Mark matches\" to mark as many match days as you like – the plan prepares you for the next upcoming match. Recovery days are placed automatically.",
  "meta.teamN":"with the team","meta.persons":"people","meta.match":"Next match",
+ "meta.otherMatches":"Other matches","meta.planNextOnly":"The training plan targets the next match.",
  "meta.today":"today","meta.tomorrow":"tomorrow","meta.inDays":"in {n} days",
  "phase.md1":"Match preparation – activation (1 day before the match)",
  "phase.md2":"Match preparation – reduced session (2 days before the match)",
@@ -1670,7 +1621,7 @@ function onFocusToggle(input){
 let calView = null;            // Date (1. des angezeigten Monats)
 let calMode = "train";         // "train" | "match"
 let selDates = new Set();      // gewählte Trainingstage als "YYYY-MM-DD"
-let matchDate = null;          // Spieltag als "YYYY-MM-DD" oder null
+let matchDates = new Set();    // markierte Spieltage als "YYYY-MM-DD" (beliebig viele)
 
 function pad2(n){ return String(n).padStart(2,"0"); }
 function isoFromDate(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
@@ -1693,13 +1644,23 @@ function calShift(dir){
  renderCalendar();
 }
 
+/* Nächstes markiertes Spiel (frühestes Datum ab heute; sonst frühestes überhaupt) */
+function nextMatch(setOrArr){
+ const src = setOrArr || matchDates;
+ const arr = Array.from(src).sort();
+ if(!arr.length) return null;
+ const tIso = todayIso();
+ const upcoming = arr.filter(d=>d>=tIso);
+ return upcoming.length ? upcoming[0] : arr[arr.length-1];
+}
+
 function onCalDay(iso, disabled){
  if(disabled) return;
  if(calMode==="match"){
-   matchDate = (matchDate===iso) ? null : iso;
-   if(matchDate) selDates.delete(matchDate); // Spieltag ist kein Trainingstag
+   if(matchDates.has(iso)) matchDates.delete(iso);
+   else { matchDates.add(iso); selDates.delete(iso); } // Spieltag ist kein Trainingstag
  } else {
-   if(iso===matchDate) return; // Spieltag nicht als Trainingstag wählbar
+   if(matchDates.has(iso)) return; // Spieltag nicht als Trainingstag wählbar
    if(selDates.has(iso)) selDates.delete(iso); else selDates.add(iso);
  }
  renderCalendar();
@@ -1720,6 +1681,7 @@ function renderCalendar(){
  const firstOffset = wdIndex(new Date(y,m,1));
  const daysInMonth = new Date(y,m+1,0).getDate();
  const tIso = todayIso();
+ const nm = nextMatch();
  let cells="";
  for(let i=0;i<firstOffset;i++) cells+=`<div class="cal-day empty"></div>`;
  for(let day=1; day<=daysInMonth; day++){
@@ -1729,15 +1691,20 @@ function renderCalendar(){
    if(isPast) cls+=" off";
    if(iso===tIso) cls+=" today";
    if(selDates.has(iso)) cls+=" sel";
-   if(iso===matchDate) cls+=" match";
+   if(matchDates.has(iso)) cls+=" match";
+   if(iso===nm) cls+=" nextmatch"; // nächstes Spiel hervorheben
    cells+=`<div class="${cls}" role="button" tabindex="${isPast?-1:0}" onclick="onCalDay('${iso}',${isPast})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();onCalDay('${iso}',${isPast});}">${day}</div>`;
  }
  gridEl.innerHTML = cells;
 
  if(infoEl){
-   infoEl.textContent = matchDate
-     ? "⚽ " + t("cal.matchLabel") + ": " + fmtFull(matchDate)
-     : t("cal.noMatch");
+   if(matchDates.size===0){
+     infoEl.textContent = t("cal.noMatch");
+   } else if(matchDates.size===1){
+     infoEl.textContent = "⚽ " + t("cal.matchLabel") + ": " + fmtFull(nm);
+   } else {
+     infoEl.textContent = "⚽ " + fill(t("cal.matchCount"), {n: matchDates.size}) + " · " + t("cal.nextIs") + " " + fmtFull(nm);
+   }
  }
 }
 
@@ -1873,8 +1840,6 @@ function setWantEmail(yes){
 
 function submitAuth(){
  const email=(document.getElementById("authEmail").value||"").trim().toLowerCase();
- const pw=document.getElementById("authPw").value||"";
- const pw2=document.getElementById("authPw2").value||"";
  const agree=document.getElementById("authAgree").checked;
  const err=document.getElementById("authError");
  const agreeRow=document.getElementById("agreeRow");
@@ -1885,46 +1850,14 @@ function submitAuth(){
    if(!emailValid(email)){ err.textContent=t("auth.errEmail"); err.style.display="block"; return; }
  }
 
- // Existierendes Konto suchen (nur sinnvoll, wenn E-Mail angegeben – ohne E-Mail ist es immer eine Neuanlage auf diesem Gerät)
+ // Existierendes Konto suchen (nur sinnvoll, wenn E-Mail angegeben)
  const existing = wantEmail ? registryFind(users, email) : null;
 
- if(existing && existing.pwHash){
-   // Konto existiert in der Registry dieses Browsers
-   if(deviceKnown(existing)){
-     // Bekanntes Gerät → KEIN Passwort nötig
-     err.style.display="none"; agreeRow.classList.remove("err");
-     existing.emailOptIn = true; // E-Mail vorhanden → Erinnerungen an (kann später im ⚙️ geändert werden)
-     existing.agreedTerms = true;
-     registryPut(users, existing); usersSet(users);
-     accountSet(existing);
-     routeAfterLogin(existing);
-     return;
-   }
-   // Neues Gerät → Passwort nötig
-   if(!pw){ err.textContent=t("auth.errPw"); err.style.display="block"; return; }
-   if(!checkPassword(existing, pw)){ err.textContent=t("auth.errWrongPw"); err.style.display="block"; return; }
-   err.style.display="none"; agreeRow.classList.remove("err");
-   markDeviceKnown(existing); // dieses Gerät jetzt vertrauen
-   existing.agreedTerms = true;
-   registryPut(users, existing); usersSet(users);
-   accountSet(existing);
-   routeAfterLogin(existing);
-   return;
- }
-
- // Neues Konto (oder Altkonto ohne Passwort) → Passwort setzen, Zustimmung nötig
- if(!passwordValid(pw)){ err.textContent=t("auth.errPw"); err.style.display="block"; return; }
- if(pw!==pw2){ err.textContent=t("auth.errPw2"); err.style.display="block"; return; }
- if(!agree){ err.textContent=t("auth.errAgree"); err.style.display="block"; agreeRow.classList.add("err"); return; }
- agreeRow.classList.remove("err"); err.style.display="none";
-
- const pwHash=hashPassword(pw);
-
  if(existing){
-   // Altkonto ohne Passwort bekommt jetzt eins (Benutzername bleibt fest)
-   existing.pwHash=pwHash;
-   existing.emailOptIn=true;
-   existing.agreedTerms=true;
+   // Bekanntes Konto → direkt anmelden (ohne Passwort)
+   err.style.display="none"; agreeRow.classList.remove("err");
+   existing.emailOptIn = true;
+   existing.agreedTerms = true;
    markDeviceKnown(existing);
    registryPut(users, existing); usersSet(users);
    accountSet(existing);
@@ -1932,14 +1865,17 @@ function submitAuth(){
    return;
  }
 
- // Ganz neues Konto: festen, einzigartigen Benutzernamen erzeugen
+ // Neues Konto → nur Zustimmung nötig (kein Passwort)
+ if(!agree){ err.textContent=t("auth.errAgree"); err.style.display="block"; agreeRow.classList.add("err"); return; }
+ agreeRow.classList.remove("err"); err.style.display="none";
+
+ // Festen, einzigartigen Benutzernamen erzeugen
  const username=generateUsername();
  users.names=(users.names||[]).concat(username);
  const account={
    username,
    email: wantEmail ? email : "",
    nickname:"",
-   pwHash,
    emailOptIn: wantEmail,   // ohne E-Mail keine Erinnerungen
    agreedTerms:true,
    knownDevices:[getDeviceId()],
@@ -1991,43 +1927,10 @@ function editNicknameFromSettings(){
  show("nicknameView");
 }
 
-/* Passwort-Ändern-Modal öffnen/schließen */
-function togglePwModal(open){
- const m=document.getElementById("pwModal");
- if(open){
-   toggleDesign(false);
-   document.getElementById("pwCurrent").value="";
-   document.getElementById("pwNew").value="";
-   document.getElementById("pwNew2").value="";
-   const e=document.getElementById("pwModalError"); if(e){ e.style.display="none"; }
-   const s=document.getElementById("pwModalStatus"); if(s){ s.className="mail-status"; s.textContent=""; }
-   m.classList.add("open");
- } else { m.classList.remove("open"); }
-}
-
-/* Neues Passwort speichern (mit Prüfung des aktuellen) */
-function saveNewPassword(){
- const acc=accountGet(); if(!acc) return;
- const cur=document.getElementById("pwCurrent").value||"";
- const nw=document.getElementById("pwNew").value||"";
- const nw2=document.getElementById("pwNew2").value||"";
- const err=document.getElementById("pwModalError");
- const status=document.getElementById("pwModalStatus");
- if(acc.pwHash && !checkPassword(acc, cur)){ err.textContent=t("pw.errCurrent"); err.style.display="block"; return; }
- if(!passwordValid(nw)){ err.textContent=t("pw.errNew"); err.style.display="block"; return; }
- if(nw!==nw2){ err.textContent=t("pw.errMatch"); err.style.display="block"; return; }
- err.style.display="none";
- acc.pwHash=hashPassword(nw);
- accountSet(acc);
- const users=usersGet(); registryPut(users, acc); usersSet(users);
- if(status){ status.className="mail-status ok"; status.textContent=t("pw.saved"); }
- setTimeout(function(){ togglePwModal(false); }, 900);
-}
-
 /* E-Mail-Erinnerungen an/aus schalten */
 function toggleEmailOptIn(){
  const acc=accountGet(); if(!acc) return;
- if(!acc.email){ togglePwModal(false); openEmailModal(); return; } // ohne E-Mail: erst E-Mail hinzufügen
+ if(!acc.email){ openEmailModal(); return; } // ohne E-Mail: erst E-Mail hinzufügen
  acc.emailOptIn=!acc.emailOptIn;
  accountSet(acc);
  const users=usersGet(); registryPut(users, acc); usersSet(users);
@@ -2104,7 +2007,6 @@ function renderAccountBox(){
  + `<div class="acct-line"><span class="k">${t("set.email")}</span><span class="v">${emailVal}</span></div>`
  + `<div class="acct-actions">`
  +   `<button type="button" onclick="editNicknameFromSettings()">${t("set.editNick")}</button>`
- +   `<button type="button" onclick="togglePwModal(true)">${t("set.changePw")}</button>`
  +   `<button type="button" onclick="openEmailModal()">${t("set.addEmail")}</button>`
  +   (hasEmail ? `<button type="button" class="${optCls.trim()}" onclick="toggleEmailOptIn()">${optTxt}</button>` : "")
  + `</div>`
@@ -2586,6 +2488,7 @@ function generatePlan(){
 
  const acc = accountGet();
  const displayName = acc ? (acc.nickname || acc.username) : "";
+ const allMatches = Array.from(matchDates).sort();
  lastPlanConfig={
    focuses: focuses.length?focuses:["technik"],
    gkOnly, status, level,
@@ -2593,7 +2496,8 @@ function generatePlan(){
    partner: (mode==="team") ? "partner" : "allein",
    material: document.getElementById("material").value,
    dates,
-   matchDate: matchDate,
+   matchDate: nextMatch(),      // Plan bezieht sich nur auf das nächste anstehende Spiel
+   allMatches: allMatches,      // alle markierten Spiele (nur zur Anzeige)
    position: normalizePos(p.position),
    dob: p.dob, name: displayName, season: p.season
  };
@@ -2674,6 +2578,12 @@ function renderPlan(cfg){
    else if(dd===1) when = t("meta.tomorrow");
    else if(dd>1) when = t("meta.inDays").replace("{n}", dd);
    meta += `<div><strong>⚽ ${t("meta.match")}:</strong> ${escapeHtml(fmtFull(cfg.matchDate))}${when?" ("+escapeHtml(when)+")":""}</div>`;
+   // Weitere markierte Spiele (nur Anzeige – der Plan bezieht sich auf das nächste)
+   const others = (cfg.allMatches||[]).filter(d=>d!==cfg.matchDate);
+   if(others.length){
+     const list = others.map(d=>fmtShort(d)).join(", ");
+     meta += `<div style="opacity:.8;"><strong>${t("meta.otherMatches")}:</strong> ${escapeHtml(list)}<br><span style="font-size:12px;color:var(--text-muted)">${escapeHtml(t("meta.planNextOnly"))}</span></div>`;
+   }
  }
  document.getElementById("planMeta").innerHTML = meta;
 
